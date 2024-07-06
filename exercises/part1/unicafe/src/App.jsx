@@ -6,31 +6,20 @@ const Button = (props) => (
   </button>
 )
 
-const Rating = (props) => (
+const StatisticLine = (props) => (
   <>
-  {props.text} {props.rate}
+  {props.text} {props.value}
   <br></br>
   </>
 )
 
-const Statistics = (props) => (
-  <>
-  {props.text} {props.rate}
-  <br></br>
-  </>
-)
 
-const App = () => {
-  // save clicks of each button to its own state
-  const [good, setGood] = useState(0)
-  const [neutral, setNeutral] = useState(0)
-  const [bad, setBad] = useState(0)
-
+const Statistics = (props) => {
   const averageValue = (total) => {
     if (total === 0){
       return 0;
     }
-    return (good - bad) / total
+    return (props.good - props.bad) / total
 
   }
 
@@ -38,9 +27,27 @@ const App = () => {
     if (total === 0){
       return 0;
     }
-    return (good / total) * 100
+    return (props.good / total) * 100
 
   }
+  return(
+    <div>
+      <StatisticLine value={props.good} text="good" />
+      <StatisticLine value={props.neutral} text="neutral" />
+      <StatisticLine value={props.bad} text="bad" />
+      <StatisticLine value={props.good + props.neutral + props.bad} text="all" />
+      <StatisticLine value={averageValue(props.good + props.neutral + props.bad)} text="average" />
+      <StatisticLine value={positive(props.good + props.neutral + props.bad)} text="positive" />
+    </div>
+  );
+}
+
+
+const App = () => {
+  // save clicks of each button to its own state
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
 
     // Render statistics only if feedback has been gathered
     const renderStatistics = () => {
@@ -51,16 +58,10 @@ const App = () => {
       }
       return (
         <>
-          <Statistics rate={good} text="good" />
-          <Statistics rate={neutral} text="neutral" />
-          <Statistics rate={bad} text="bad" />
-          <Statistics rate={good + neutral + bad} text="all" />
-          <Statistics rate={averageValue(good + neutral + bad)} text="average" />
-          <Statistics rate={positive(good + neutral + bad)} text="positive" />
+          <Statistics good={good} neutral={neutral} bad={bad} />
         </>
       );
     };
-
 
   return (
     <div>
