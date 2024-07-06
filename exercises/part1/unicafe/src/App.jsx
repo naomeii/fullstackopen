@@ -13,12 +13,13 @@ const Rating = (props) => (
   </>
 )
 
-const Stats = (props) => (
+const Statistics = (props) => (
   <>
   {props.text} {props.rate}
   <br></br>
   </>
 )
+
 
 const App = () => {
   // save clicks of each button to its own state
@@ -49,12 +50,12 @@ const App = () => {
       <Button handleClick={() => setNeutral(neutral + 1)} text="neutral" />
       <Button handleClick={() => setBad(bad + 1)} text="bad" />
       <h1>statistics</h1>
-      <Rating rate={good} text="good" />
-      <Rating rate={neutral} text="neutral" />
-      <Rating rate={bad} text="bad" />
-      <Stats rate={good + neutral + bad} text="all" />
-      <Stats rate={averageValue(good + neutral + bad)} text="average" />
-      <Stats rate={positive(good + neutral + bad)} text="positive" />
+      <Statistics rate={good} text="good" />
+      <Statistics rate={neutral} text="neutral" />
+      <Statistics rate={bad} text="bad" />
+      <Statistics rate={good + neutral + bad} text="all" />
+      <Statistics rate={averageValue(good + neutral + bad)} text="average" />
+      <Statistics rate={positive(good + neutral + bad)} text="positive" />
     </div>
   )
 }
