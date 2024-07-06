@@ -20,7 +20,6 @@ const Statistics = (props) => (
   </>
 )
 
-
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
@@ -43,6 +42,26 @@ const App = () => {
 
   }
 
+    // Render statistics only if feedback has been gathered
+    const renderStatistics = () => {
+      if (good + neutral + bad === 0) {
+        return (
+          <p>No feedback given</p>
+        );
+      }
+      return (
+        <>
+          <Statistics rate={good} text="good" />
+          <Statistics rate={neutral} text="neutral" />
+          <Statistics rate={bad} text="bad" />
+          <Statistics rate={good + neutral + bad} text="all" />
+          <Statistics rate={averageValue(good + neutral + bad)} text="average" />
+          <Statistics rate={positive(good + neutral + bad)} text="positive" />
+        </>
+      );
+    };
+
+
   return (
     <div>
       <h1>give feedback</h1>
@@ -50,12 +69,7 @@ const App = () => {
       <Button handleClick={() => setNeutral(neutral + 1)} text="neutral" />
       <Button handleClick={() => setBad(bad + 1)} text="bad" />
       <h1>statistics</h1>
-      <Statistics rate={good} text="good" />
-      <Statistics rate={neutral} text="neutral" />
-      <Statistics rate={bad} text="bad" />
-      <Statistics rate={good + neutral + bad} text="all" />
-      <Statistics rate={averageValue(good + neutral + bad)} text="average" />
-      <Statistics rate={positive(good + neutral + bad)} text="positive" />
+        {renderStatistics()}
     </div>
   )
 }
