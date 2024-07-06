@@ -27,7 +27,7 @@ const Statistics = (props) => {
     if (total === 0){
       return 0;
     }
-    return (props.good / total) * 100
+    return ((props.good / total) * 100) + ' %'
 
   }
   return(
