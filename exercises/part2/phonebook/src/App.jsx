@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import personService from './services/persons'
+
+const baseUrl = 'http://localhost:3001/persons'
 
 const Filter = ({ filter, setFilter }) => {
   return (
@@ -23,16 +26,18 @@ const PersonForm = ({addName, newName, setNewName, newNumber, setNewNumber}) => 
   );
 }
 
-const Persons = ({showPersons}) => {
+const Persons = ({showPersons, toggleDelete}) => {
   return (
     <ul>
     {showPersons.map((person, name) => (
-      <li key={name}>{person.name} {person.number}</li>
+      <li 
+      key={name}> {person.name} {person.number}
+      <button onClick={() => toggleDelete(person.id)}>delete</button>
+      </li>
     ))}
     </ul>
   );
 }
-
 
 
 const App = () => {
@@ -42,13 +47,27 @@ const App = () => {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      })
+    personService
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
+    })
   }, [])
 
+
+  const toggleDelete = (id) => {
+    personService
+    .getPerson(id)
+    .then(response => {
+      const personName = response.name;
+
+      if (window.confirm(`Delete ${personName} ?`)) {
+        personService.deletePerson(id).then(() => {
+          setPersons(persons.filter((person) => person.id !== id));
+        });
+      }
+    })
+  };
 
   const addName = (event) => {
     event.preventDefault();
@@ -56,7 +75,13 @@ const App = () => {
     if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`);
     } else {
-      setPersons([...persons, { name: newName, number: newNumber }]);
+      const newPerson = { name: newName, number: newNumber };
+
+      personService
+      .create(newPerson)
+      .then(returnedPerson => {
+        setPersons([...persons, returnedPerson]);
+      })
     }
   }
 
@@ -74,7 +99,7 @@ const App = () => {
       <PersonForm addName={addName} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} />
 
       <h2>Numbers</h2>
-      <Persons showPersons={showPersons} />
+      <Persons showPersons={showPersons} toggleDelete={toggleDelete} />
     </div>
   )
 }
