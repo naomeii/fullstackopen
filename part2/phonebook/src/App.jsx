@@ -4,6 +4,26 @@ import personService from './services/persons'
 
 const baseUrl = 'http://localhost:3001/persons'
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  if (message.includes('has already been removed from the server')) {
+    return (
+      <div className='errorNotif'>
+        {message}
+      </div>
+    )
+  }
+
+  return (
+    <div className='notif'>
+      {message}
+    </div>
+  )
+}
+
 const Filter = ({ filter, setFilter }) => {
   return (
   <div>
@@ -45,6 +65,8 @@ const App = () => {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filter, setFilter] = useState('');
+  const [notif, setNotif] = useState(null)
+
 
   useEffect(() => {
     personService
@@ -64,7 +86,16 @@ const App = () => {
       if (window.confirm(`Delete ${personName} ?`)) {
         personService.deletePerson(id).then(() => {
           setPersons(persons.filter((person) => person.id !== id));
+
+          setNotif(`${personName} was deleted.`);
+          setTimeout(() => {
+            setNotif(null)
+          }, 5000)
         });
+
+          // reset inputs
+          setNewName('');
+          setNewNumber('');
       }
     })
   };
@@ -80,6 +111,21 @@ const App = () => {
         .updatePerson(updatedCurrPerson.id, updatedCurrPerson)
         .then(returnedPerson => {
           setPersons(persons.map(person => person.id === returnedPerson.id ? returnedPerson : person));
+        
+          setNotif(`${returnedPerson.name}'s number was changed.`);
+          setTimeout(() => {
+            setNotif(null)
+          }, 5000)
+
+          setNewName('');
+          setNewNumber('');
+        
+        })
+        .catch(error => {
+          setNotif(`Information of ${currPerson.name} has already been removed from the server`);
+          setTimeout(() => {
+            setNotif(null)
+          }, 5000)
         });
       }
     } else {
@@ -89,6 +135,15 @@ const App = () => {
       .create(newPerson)
       .then(returnedPerson => {
         setPersons([...persons, returnedPerson]);
+
+        setNotif(`Added ${returnedPerson.name}`);
+        setTimeout(() => {
+          setNotif(null)
+        }, 5000)
+
+        setNewName('');
+        setNewNumber('');
+
       })
     }
   }
@@ -100,11 +155,18 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notif} />
       <Filter filter={filter} setFilter={setFilter} />
 
       <h2>add a new</h2>
 
-      <PersonForm addName={addName} newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} />
+      <PersonForm 
+      addName={addName} 
+      newName={newName} 
+      setNewName={setNewName} 
+      newNumber={newNumber} 
+      setNewNumber={setNewNumber} 
+      />
 
       <h2>Numbers</h2>
       <Persons showPersons={showPersons} toggleDelete={toggleDelete} />
