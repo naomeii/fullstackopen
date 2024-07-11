@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import personService from './services/persons'
-
-const baseUrl = 'http://localhost:3001/persons'
 
 const Notification = ({ message }) => {
   if (message === null) {
@@ -136,7 +133,7 @@ const App = () => {
       .then(returnedPerson => {
         setPersons([...persons, returnedPerson]);
 
-        setNotif(`Added ${returnedPerson.name}`);
+        setNotif(`Added ${newPerson.name}`);
         setTimeout(() => {
           setNotif(null)
         }, 5000)

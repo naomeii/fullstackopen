@@ -29,6 +29,8 @@ let persons = [
 // 3.7, logs requests before they are processed further: captures all incoming requests 
 app.use(morgan('tiny'))
 
+app.use(express.static('dist'))
+
 // 3.5 
 // Express json-parser that takes JSON data of a request and transfom it into JS obj
 app.use(express.json())
@@ -132,7 +134,7 @@ app.use(unknownEndpoint)
 
   
   
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
