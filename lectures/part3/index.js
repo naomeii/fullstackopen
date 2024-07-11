@@ -27,6 +27,9 @@ let notes = [
 // Express json-parser that takes JSON data of a request and transfom it into JS obj
 app.use(express.json())
 
+app.use(express.static('dist')) // makes Express show static content: index.html, Js, etc
+
+
 const generateId = () => {
   const maxId = notes.length > 0
     ? Math.max(...notes.map(n => Number(n.id)))
