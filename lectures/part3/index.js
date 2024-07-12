@@ -1,34 +1,40 @@
-const http = require('http');
+require('dotenv').config()
+
 const express = require('express');  
 const app = express();
+// cross origin policy
 const cors = require('cors')
+// mongoose stuff
+const Note = require('./models/note')
+
+// // part 3 Connecting the backend to a database
+// const password = process.argv[2]
+
+// // DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+// const url = process.env.MONGODB_URL;
+
+// mongoose.set('strictQuery',false)
+// mongoose.connect(url)
+
+// const noteSchema = new mongoose.Schema({
+//   content: String,
+//   important: Boolean,
+// })
+
+// noteSchema.set('toJSON', {
+//   transform: (document, returnedObject) => {
+//     returnedObject.id = returnedObject._id.toString()
+//     delete returnedObject._id
+//     delete returnedObject.__v
+//   }
+// })
+
+// const Note = mongoose.model('Note', noteSchema)
 
 app.use(cors()) // allows requests from other origins
-
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    important: true
-  },
-  {
-    id: 2,
-    content: "Browser can execute only JavaScript",
-    important: false
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true
-  }
-]
-
-
 // Express json-parser that takes JSON data of a request and transfom it into JS obj
 app.use(express.json())
-
 app.use(express.static('dist')) // makes Express show static content: index.html, Js, etc
-
 
 const generateId = () => {
   const maxId = notes.length > 0
@@ -75,15 +81,20 @@ app.delete('/api/notes/:id', (request, response) => {
     response.status(204).end()
   })
 
-app.get('/', (request, response) => {
-    response.send('<h1>Hello World!</h1>')
-  })
+// app.get('/', (request, response) => {
+//     response.send('<h1>Hello World!</h1>')
+//   })
   
+// app.get('/api/notes', (request, response) => {
+//     response.json(notes)
+// })
 app.get('/api/notes', (request, response) => {
+  Note.find({}).then(notes => {
     response.json(notes)
+  })
 })
   
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
