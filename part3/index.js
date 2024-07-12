@@ -2,33 +2,14 @@ const http = require('http');
 const express = require('express');  
 const app = express();
 const morgan = require('morgan')
-
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-];
+// cross origin policy
+const cors = require('cors')
+// mongoose stuff
+const Person = require('./models/person')
+app.use(cors()) // allows requests from other origins
 
 // 3.7, logs requests before they are processed further: captures all incoming requests 
 app.use(morgan('tiny'))
-
 app.use(express.static('dist'))
 
 // 3.5 
@@ -38,103 +19,114 @@ app.use(express.json())
 // functions that can be used for handling request and response objects.
 // middlewares are executed one by one in the orer they were listed in the application code
 
-// implementing our own Middleware: a function that receives 3 parameters
-// const requestLogger = (request, response, next) => {
-//   console.log('Method:', request.method)
-//   console.log('Path:  ', request.path)
-//   console.log('Body:  ', request.body)
-//   console.log('---')
-//   next()
-// }
-// app.use(requestLogger)
-
 // custom morgan token to log POST request body
 morgan.token('post-data', (req, res) => JSON.stringify(req.body))
 
 // use morgan middleware with custom token
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :post-data'));
 
-// 3.1
+// get all persons
 app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
     response.json(persons)
+  })
 })
 
-// 3.2
+// get phonebook info
 app.get('/info', (request, response) => {
-    const date = new Date().toString();
-    const display = `Phonebook has info for ${persons.length} people`;
+  Person.countDocuments({})
+    .then(count => {
+      const date = new Date().toString();
+      const display = `Phonebook has info for ${count} people`;
+      response.send(`<p>${display}</p><p>${date}</p>`);
+    })
+    .catch(error => {
+      console.log('Error displaying info:', error);
+      response.status(500).send('Error displaying info');
+    });
+});
 
-    response.send(`<p>${display}</p><p>${date}</p>`);
-    
-  })
+// fetching an individual person from MongoDB
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
 
-// 3.3
-app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-    if (person) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
-  })
-
-// 3.4
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
-  
-    response.status(204).end()
+    .catch(error => next(error)) // moving error handling to our own error handler middleware
 })
 
-
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(person => Number(person.id)))
-    : 0
-  return String(maxId + 1)
-}
+// deleting a person from MongoDB
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error))
+})
 
 app.post('/api/persons', (request, response) => {
-  const body = request.body // this will be undefined w out our json parser
+  const body = request.body
 
   if (!body.name || !body.number) {
     return response.status(400).json({ 
       error: 'name or number is missing' 
     })
   }
-  if (persons.find(person => person.name === body.name)){
-    return response.status(400).json({ 
-        error: 'name must be unique' 
-    })
-  }
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  })
+
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
+})
+
+
+// will be called if person already exists in phonebook
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
 
   const person = {
-    id: generateId(),
     name: body.name,
     number: body.number
   }
 
-  persons = persons.concat(person)
-
-  response.json(persons)
+  Person.findByIdAndUpdate(request.params.id, person, { new: true }) // new: true triggers our event handler to use our modified document instead of the OG
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
-
 
 // Middleware functions have to be used before routes bc we want them to be executed by the route event handlers
 // sometimes we use them after routes when middleware functions are only caled if no route handler processes the HTTP request
-
 // This middleware will be used for catching requests made to non-existent routes. For these requests, the middleware will return an error message in the JSON format.
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-
 app.use(unknownEndpoint)
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
 
   
-  
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
