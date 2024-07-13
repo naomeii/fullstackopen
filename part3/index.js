@@ -85,6 +85,12 @@ app.post('/api/persons', (request, response) => {
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
+  .catch(error => {
+    if (error.name === 'ValidationError') {
+      return response.status(400).json({ error: error.message });
+    }
+    next(error); // Forward other errors to the global error handler
+  });
 })
 
 
@@ -97,11 +103,16 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true }) // new: true triggers our event handler to use our modified document instead of the OG
+  Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true }) // new: true triggers our event handler to use our modified document instead of the OG
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
-    .catch(error => next(error))
+    .catch(error => {
+      if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message });
+      }
+      next(error); // Forward other errors to the global error handler
+    });
 })
 
 // Middleware functions have to be used before routes bc we want them to be executed by the route event handlers
@@ -117,11 +128,13 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
-
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 

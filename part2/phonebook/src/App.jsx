@@ -6,7 +6,7 @@ const Notification = ({ message }) => {
     return null
   }
 
-  if (message.includes('has already been removed from the server')) {
+  if (message.includes('has already been removed from the server') || message.includes('failed')) {
     return (
       <div className='errorNotif'>
         {message}
@@ -119,11 +119,13 @@ const App = () => {
         
         })
         .catch(error => {
-          setNotif(`Information of ${currPerson.name} has already been removed from the server`);
+          // this is the way to access the error message
+          // console.log(error.response.data.error)
+          setNotif(`${error.response.data.error}`);
           setTimeout(() => {
             setNotif(null)
-          }, 5000)
-        });
+          }, 5000);
+        })
       }
     } else {
       const newPerson = { name: newName, number: newNumber };
@@ -141,6 +143,14 @@ const App = () => {
         setNewName('');
         setNewNumber('');
 
+      })
+      .catch(error => {
+        // this is the way to access the error message
+        // console.log(error.response.data.error)
+        setNotif(`${error.response.data.error}`);
+        setTimeout(() => {
+          setNotif(null)
+        }, 5000)
       })
     }
   }
