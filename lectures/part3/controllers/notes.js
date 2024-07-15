@@ -1,4 +1,5 @@
 // event handlers of routes
+require('express-async-errors')
 const notesRouter = require('express').Router() // router object middleware
 const Note = require('../models/note')
 const User = require('../models/user')
