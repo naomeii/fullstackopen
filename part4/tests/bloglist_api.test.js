@@ -3,6 +3,7 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 
 const blogHelper = require('../utils/blog_helper')
+const testHelper = require('./test_helper.js')
 const supertest = require('supertest')
 const app = require('../app')
 
@@ -139,23 +140,23 @@ describe('4.8-4.12 tests', () => {
 
 describe('4.13-4.14 tests', () => {
 
-    // test('deleting a blog', async () => {
+    test('deleting a blog', async () => {
 
-    //     const blogsAtStart = await blogHelper.blogsInDb()
-    //     const blogToDelete = blogsAtStart[0]
+        const blogsAtStart = await blogHelper.blogsInDb()
+        const blogToDelete = blogsAtStart[0]
 
-    //     await api
-    //     .delete(`/api/blogs/${blogToDelete.id}`)
-    //     .expect(204)
+        await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
 
-    //     const blogsAfterDelete = await blogHelper.blogsInDb()
+        const blogsAfterDelete = await blogHelper.blogsInDb()
 
-    //     assert.strictEqual(blogsAfterDelete.length, blogHelper.initialBlogs.length - 1)
+        assert.strictEqual(blogsAfterDelete.length, blogHelper.initialBlogs.length - 1)
 
-    //     // console.log(blogsAfterDelete)
-    //     assert(!blogsAfterDelete.includes(blogToDelete))
+        // console.log(blogsAfterDelete)
+        assert(!blogsAfterDelete.includes(blogToDelete))
 
-    // })
+    })
 
     test('testing likes were updated', async () => {
 

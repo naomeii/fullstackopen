@@ -1,8 +1,8 @@
 const logger = require('./logger')
-// const jwt = require('jsonwebtoken')
-// const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
 
-// const config = require('../utils/config')
+const config = require('../utils/config')
 
 
 const requestLogger = (request, response, next) => {
@@ -28,15 +28,15 @@ const tokenExtractor = (request, response, next) => {
 
 const userExtractor = async (request, response, next) => {
   
-  // const decodedToken = jwt.verify(request.token, config.SECRET)
-  // if (!decodedToken.id) {
-  //   return response.status(401).json({ error: 'token invalid' })
-  // }
+  const decodedToken = jwt.verify(request.token, config.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
 
-  // const user = await User.findById(decodedToken.id)
-  // request.user = user
+  const user = await User.findById(decodedToken.id)
+  request.user = user
   
-  // next()
+  next()
 }
 
 
@@ -65,5 +65,5 @@ module.exports = {
   unknownEndpoint,
   errorHandler,
   tokenExtractor,
-  // userExtractor
+  userExtractor
 }
