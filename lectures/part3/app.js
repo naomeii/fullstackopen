@@ -1,5 +1,8 @@
 const config = require('./utils/config')
 const express = require('express')
+const usersRouter = require('./controllers/users')
+const loginRouter = require('./controllers/login')
+
 
 // you introduce the library to elimate try/catch from our controllers/notes.js methods before you import your routes
 require('express-async-errors') // automatically catches error and passed to the error-handling middleware for us
@@ -30,6 +33,8 @@ app.use(express.json()) // Express json-parser that takes JSON data of a request
 app.use(middleware.requestLogger)
 
 app.use('/api/notes', notesRouter) //
+app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 app.use(middleware.unknownEndpoint)
 
