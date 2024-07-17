@@ -1,0 +1,132 @@
+import { useState, useEffect, useRef } from 'react'
+
+import LoginHeader from './components/Loginheader'
+import Showblogs from './components/Showblogs'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
+
+import blogService from './services/blogs'
+import loginService from './services/login'
+
+
+const App = () => {
+  const [blogs, setBlogs] = useState([])
+  const [errorMessage, setErrorMessage] = useState(null)
+
+
+  // login states
+  const [username, setUsername] = useState('') 
+  const [password, setPassword] = useState('') 
+  const [user, setUser] = useState(null)
+
+
+  useEffect(() => {
+    blogService.getAll().then(blogs =>
+      setBlogs( blogs )
+    )  
+  }, [])
+
+  // app checks if logged in user can be found in local storage
+  // if yes, save details to the state of the application and noteService
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
+    }
+  }, []) // [] ensures this only gets executed when page is rendered for the first time
+
+
+  const loginForm = () => (
+    <form onSubmit={handleLogin}>
+      <h1>log in to application :D</h1>
+      <div>
+        username
+          <input
+          type="text"
+          value={username}
+          name="Username"
+          onChange={({ target }) => setUsername(target.value)}
+        />
+      </div>
+      <div>
+        password
+          <input
+          type="password"
+          value={password}
+          name="Password"
+          onChange={({ target }) => setPassword(target.value)}
+        />
+      </div>
+      <button type="submit">login</button>
+    </form>      
+  )
+
+  const handleLogout = () => {
+    // clears logged in user from local storage
+    window.localStorage.removeItem('loggedBlogUser');
+    // clears user
+    setUser(null);
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    
+    try {
+      const user = await loginService.login({
+        username, password,
+      })
+      // saves the logged in user to local storage. Obj is parsed to JSON with JSON.stringify
+      window.localStorage.setItem(
+        'loggedBlogUser', JSON.stringify(user)
+      ) 
+
+      blogService.setToken(user.token)
+
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (exception) {
+      setErrorMessage('Wrong credentials')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+    }
+  } 
+
+  const addBlog = (addBlog) => {
+    // hide create new blog form after creating a new blog
+    blogFormRef.current.toggleVisibility()
+    
+    blogService
+      .create(addBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+      })
+  }
+
+  const blogFormRef = useRef()
+
+  const blogForm = () => (
+    <Togglable buttonLabel='create new blog' ref={blogFormRef}>
+      <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
+      </Togglable>
+  )
+
+
+  return (
+    <div>
+      
+      {user === null ?
+      loginForm() :      
+       <div>
+      <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={errorMessage}/>
+      <Showblogs blogs={blogs} />
+    </div>
+      }
+    </div>
+  )
+}
+
+export default App
