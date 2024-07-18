@@ -1,6 +1,7 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
+import PropTypes from 'prop-types'
 
-const Togglable = forwardRef((props, refs) => {
+const Togglable = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false)
 
   const hideWhenVisible = { display: visible ? 'none' : '' }
@@ -11,7 +12,7 @@ const Togglable = forwardRef((props, refs) => {
   }
 
   // a React hook used for defining functions inside a component, which can be invoked from outside the component
-  useImperativeHandle(refs, () => {
+  useImperativeHandle(ref, () => {
     return {
       toggleVisibility
     }
@@ -31,5 +32,11 @@ const Togglable = forwardRef((props, refs) => {
 })
 
 // Setting the displayName for Togglable component
-Togglable.displayName = 'Togglable';
+Togglable.displayName = 'Togglable'
+
+// makes it mandatory for buttonLabel
+Togglable.propTypes = {
+  buttonLabel: PropTypes.string.isRequired
+}
+
 export default Togglable

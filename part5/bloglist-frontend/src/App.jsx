@@ -15,15 +15,15 @@ const App = () => {
 
 
   // login states
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   // app checks if logged in user can be found in local storage
@@ -43,7 +43,7 @@ const App = () => {
       <h1>log in to application :D</h1>
       <div>
         username
-          <input
+        <input
           type="text"
           value={username}
           name="Username"
@@ -52,7 +52,7 @@ const App = () => {
       </div>
       <div>
         password
-          <input
+        <input
           type="password"
           value={password}
           name="Password"
@@ -60,19 +60,19 @@ const App = () => {
         />
       </div>
       <button type="submit">login</button>
-    </form>      
+    </form>
   )
 
   const handleLogout = () => {
     // clears logged in user from local storage
-    window.localStorage.removeItem('loggedBlogUser');
+    window.localStorage.removeItem('loggedBlogUser')
     // clears user
-    setUser(null);
-  };
+    setUser(null)
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
@@ -80,7 +80,7 @@ const App = () => {
       // saves the logged in user to local storage. Obj is parsed to JSON with JSON.stringify
       window.localStorage.setItem(
         'loggedBlogUser', JSON.stringify(user)
-      ) 
+      )
 
       blogService.setToken(user.token)
 
@@ -93,12 +93,12 @@ const App = () => {
         setErrorMessage(null)
       }, 5000)
     }
-  } 
+  }
 
   const addBlog = (addBlog) => {
     // hide create new blog form after creating a new blog
     blogFormRef.current.toggleVisibility()
-    
+
     blogService
       .create(addBlog)
       .then(returnedBlog => {
@@ -111,37 +111,37 @@ const App = () => {
   const blogForm = () => (
     <Togglable buttonLabel='create new blog' ref={blogFormRef}>
       <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
-      </Togglable>
+    </Togglable>
   )
 
   const deleteBlog = async (blog) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)){
       blogService.deleteBlog(blog.id)
-      .then(() => {
-        setErrorMessage(
-          `${blog.title} was removed from server`
-        )
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-        setBlogs(blogs.filter(b => b.id !== blog.id))
-      })
-      .catch(error => {
+        .then(() => {
+          setErrorMessage(
+            `${blog.title} was removed from server`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+          setBlogs(blogs.filter(b => b.id !== blog.id))
+        })
+        .catch(error => {
 
-        setErrorMessage(
-          `Error deleting ${blog.title}: ${error}`
-        )
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+          setErrorMessage(
+            `Error deleting ${blog.title}: ${error}`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
 
-      })
+        })
     }
   }
 
   const updateLikes = async (blog) => {
     const updatedBlog = { ...blog, likes: blog.likes + 1 }
-  
+
     blogService
       .update(updatedBlog.id, updatedBlog)
       .then(returnedBlog => {
@@ -149,7 +149,7 @@ const App = () => {
       })
       .catch(() => {
         setErrorMessage(
-          `Blog was already removed from server`
+          'Blog was already removed from server'
         )
         setTimeout(() => {
           setErrorMessage(null)
@@ -161,13 +161,13 @@ const App = () => {
 
   return (
     <div>
-      
+
       {user === null ?
-      loginForm() :      
-       <div>
-      <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={errorMessage}/>
-      <Showblogs blogs={blogs} updateLikes={updateLikes} deleteBlog={deleteBlog} loggedInUser={user}/>
-      </div>
+        loginForm() :
+        <div>
+          <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={errorMessage}/>
+          <Showblogs blogs={blogs} updateLikes={updateLikes} deleteBlog={deleteBlog} loggedInUser={user}/>
+        </div>
       }
     </div>
   )

@@ -31,5 +31,5 @@ const Togglable = forwardRef((props, refs) => {
 })
 
 // Setting the displayName for Togglable component
-Togglable.displayName = 'Togglable';
+Togglable.displayName = 'Togglable'
 export default Togglable

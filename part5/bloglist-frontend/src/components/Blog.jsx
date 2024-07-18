@@ -24,25 +24,25 @@ const Blog = ({ blog, updateLikes, deleteBlog, loggedInUser }) => {
       </div>
 
       <div style={showWhenVisible}>
-      {blog.title} {blog.author + ' '}
-      <button onClick={() => setBlogVisible(false)}>hide</button>  
-      <br />
-      {blog.url}
-      <br />
+        {blog.title} {blog.author + ' '}
+        <button onClick={() => setBlogVisible(false)}>hide</button>
+        <br />
+        {blog.url}
+        <br />
       likes {blog.likes}
-      <button onClick={() => updateLikes(blog)}>like</button>  
-      <br />
-      {/* {console.log('blog is', blog)} */}
-      {blog.user.name}
-      <br />
-      {/* {console.log(blog)} */}
-      {loggedInUser && blog.user.name === loggedInUser.name && (
+        <button onClick={() => updateLikes(blog)}>like</button>
+        <br />
+        {/* {console.log('blog is', blog)} */}
+        {blog.user.name}
+        <br />
+        {/* {console.log(blog)} */}
+        {loggedInUser && blog.user.name === loggedInUser.name && (
           <button onClick={() => deleteBlog(blog)}>remove</button>
-      )}      
+        )}
       </div>
 
-  </div>
-)
+    </div>
+  )
 }
 
 export default Blog

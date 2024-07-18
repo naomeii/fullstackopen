@@ -19,22 +19,22 @@ const App = () => {
   const [showAll, setShowAll] = useState(true) // show all or only important notes?
   const [errorMessage, setErrorMessage] = useState(null)
   // part 5
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   // part5b
   const [loginVisible, setLoginVisible] = useState(false)
 
-//   useEffect(hook, []) // takes in hook func, then the effect itself
-//   // By default, effects run after every completed render, but you can choose to fire it only when certain values have changed.
-//  // The second parameter of useEffect is used to specify how often the effect is run. 
-//  // If the second parameter is an empty array [], then the effect is only run along with the first render of the component.
+  //   useEffect(hook, []) // takes in hook func, then the effect itself
+  //   // By default, effects run after every completed render, but you can choose to fire it only when certain values have changed.
+  //  // The second parameter of useEffect is used to specify how often the effect is run.
+  //  // If the second parameter is an empty array [], then the effect is only run along with the first render of the component.
   useEffect(() => {
     noteService
-    .getAll()
-    .then(initialNotes => {
-      setNotes(initialNotes)
-    })
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
+      })
   }, []) // only executed after the first render
 
 
@@ -50,13 +50,13 @@ const App = () => {
 
   // const result = condition ? val1 : val2
   const notesToShow = showAll
-  ? notes
-  : notes.filter(note => note.important === true) // when function is called, shows either all or only important notes based on showAll state
+    ? notes
+    : notes.filter(note => note.important === true) // when function is called, shows either all or only important notes based on showAll state
 
   const toggleImportanceOf = id => {
     const note = notes.find(n => n.id === id)
     const changedNote = { ...note, important: !note.important }
-  
+
     noteService
       .update(id, changedNote)
       .then(returnedNote => {
@@ -76,7 +76,7 @@ const App = () => {
   const addNote = (noteObject) => {
     // hide new note form after creating a new note
     noteFormRef.current.toggleVisibility()
-    
+
     noteService
       .create(noteObject)
       .then(returnedNote => {
@@ -86,7 +86,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
@@ -94,7 +94,7 @@ const App = () => {
       // saves the logged in user to local storage. Obj is parsed to JSON with JSON.stringify
       window.localStorage.setItem(
         'loggedNoteappUser', JSON.stringify(user)
-      ) 
+      )
 
       noteService.setToken(user.token)
 
@@ -112,7 +112,7 @@ const App = () => {
   }
 
 
-  
+
   const loginForm = () => {
     // inline style rule, where the value of the display property is none if we do not want the component to be displayed:
     const hideWhenVisible = { display: loginVisible ? 'none' : '' }
@@ -152,7 +152,7 @@ const App = () => {
       <Notification message={errorMessage} />
 
       {user === null ?
-      loginForm() : noteForm()
+        loginForm() : noteForm()
       }
 
       <div>
@@ -162,18 +162,18 @@ const App = () => {
       </div>
       <ul>
         {
-          notesToShow !== null && 
+          notesToShow !== null &&
           notesToShow.map(note =>
-            <Note 
-            key={note.id} 
-            note={note}
-            toggleImportance={() => toggleImportanceOf(note.id)}
+            <Note
+              key={note.id}
+              note={note}
+              toggleImportance={() => toggleImportanceOf(note.id)}
             />)
         }
       </ul>
-      <Footer />   
+      <Footer />
     </div>
   )
 }
 
-export default App 
+export default App
