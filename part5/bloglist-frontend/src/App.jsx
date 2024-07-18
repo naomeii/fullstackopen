@@ -114,6 +114,50 @@ const App = () => {
       </Togglable>
   )
 
+  const deleteBlog = async (blog) => {
+    if (window.confirm(`delete?`)){
+      blogService.deleteBlog(blog.id)
+      .then(() => {
+        setErrorMessage(
+          `${blog.title} was removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        setBlogs(blogs.filter(b => b.id !== blog.id))
+      })
+      .catch(error => {
+
+        setErrorMessage(
+          `Error deleting ${blog.title}: ${error}`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+
+      })
+    }
+  }
+
+  const updateLikes = async (blog) => {
+    const updatedBlog = { ...blog, likes: blog.likes + 1 }
+  
+    blogService
+      .update(updatedBlog.id, updatedBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : returnedBlog))
+      })
+      .catch(() => {
+        setErrorMessage(
+          `Blog was already removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        setBlogs(blogs.filter(b => b.id !== updatedBlog.id))
+      })
+  }
+
 
   return (
     <div>
@@ -122,8 +166,8 @@ const App = () => {
       loginForm() :      
        <div>
       <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={errorMessage}/>
-      <Showblogs blogs={blogs} />
-    </div>
+      <Showblogs blogs={blogs} updateLikes={updateLikes} deleteBlog={deleteBlog} loggedInUser={user}/>
+      </div>
       }
     </div>
   )
