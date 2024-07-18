@@ -115,7 +115,7 @@ const App = () => {
   )
 
   const deleteBlog = async (blog) => {
-    if (window.confirm(`delete?`)){
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)){
       blogService.deleteBlog(blog.id)
       .then(() => {
         setErrorMessage(
