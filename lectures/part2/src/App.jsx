@@ -104,7 +104,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('Wrong credentials')
+      setErrorMessage('wrong credentials')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -151,8 +151,15 @@ const App = () => {
       <h1>Notes</h1>
       <Notification message={errorMessage} />
 
-      {user === null ?
+      {/* {user === null ?
         loginForm() : noteForm()
+      } */}
+
+      {!user && loginForm()}
+      {user && <div>
+        <p>{user.name} logged in</p>
+        {noteForm()}
+      </div>
       }
 
       <div>

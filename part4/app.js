@@ -39,6 +39,12 @@ app.use('/api/blogs', blogsRouter) // blogsRouter in controllers/blogs.js redire
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
+// use testing router if in test mode
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 

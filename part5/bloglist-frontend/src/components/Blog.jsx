@@ -16,7 +16,7 @@ const Blog = ({ blog, updateLikes, deleteBlog, loggedInUser }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='allBlogs'>
 
       <div style={hideWhenVisible} className="defaultBlogDisplay">
         {blog.title} {blog.author + ' '}
@@ -32,11 +32,9 @@ const Blog = ({ blog, updateLikes, deleteBlog, loggedInUser }) => {
       likes {blog.likes}
         <button onClick={() => updateLikes(blog)}>like</button>
         <br />
-        {/* {console.log('blog is', blog)} */}
         {blog.user.name}
         <br />
-        {/* {console.log(blog)} */}
-        {loggedInUser && blog.user.name === loggedInUser.name && (
+        {blog.user.name === loggedInUser.name && (
           <button onClick={() => deleteBlog(blog)}>remove</button>
         )}
       </div>

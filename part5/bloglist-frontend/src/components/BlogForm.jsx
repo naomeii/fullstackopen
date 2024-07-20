@@ -37,6 +37,7 @@ const BlogForm = ({ createBlog, setErrorMessage }) => {
           value={title}
           name="Title"
           placeholder='title'
+          data-testid='title'
           onChange={({ target }) => setTitle(target.value)}
         />
       </div>
@@ -47,6 +48,7 @@ const BlogForm = ({ createBlog, setErrorMessage }) => {
           value={author}
           name="Author"
           placeholder='author'
+          data-testid='author'
           onChange={({ target }) => setAuthor(target.value)}
         />
       </div>
@@ -57,6 +59,7 @@ const BlogForm = ({ createBlog, setErrorMessage }) => {
           value={url}
           name="Url"
           placeholder='url'
+          data-testid='url'
           onChange={({ target }) => setUrl(target.value)}
         />
       </div>
