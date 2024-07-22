@@ -1,53 +1,73 @@
 import { createSlice } from '@reduxjs/toolkit'
+import anecdoteService from '../services/anecdotes'
 
-const anecdotesAtStart = [
-  'If it hurts, do it more often',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
-]
+// const anecdotesAtStart = [
+//   'If it hurts, do it more often',
+//   'Adding manpower to a late software project makes it later!',
+//   'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+//   'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+//   'Premature optimization is the root of all evil.',
+//   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
+// ]
 
-const getId = () => (100000 * Math.random()).toFixed(0)
+// const getId = () => (100000 * Math.random()).toFixed(0)
 
-const asObject = (anecdote) => {
-  return {
-    content: anecdote,
-    id: getId(),
-    votes: 0
-  }
-}
+// const asObject = (anecdote) => {
+//   return {
+//     content: anecdote,
+//     id: getId(),
+//     votes: 0
+//   }
+// }
 
-const initialState = anecdotesAtStart.map(asObject)
+// const initialState = anecdotesAtStart.map(asObject)
 
 // ------ createSlice
 const anecdoteSlice = createSlice({
   name: 'anecdote',
-  initialState,
+  initialState: [],
   reducers: {
-    createAnecdote(state, action) {
-      const content = action.payload
-      state.push({ // we can mutate state using createSlice
-        content,
-        id: getId(),
-        votes: 0
-      })
+    // addVote(state, action) {
+    //   // console.log(current(state), action)
+    //   const anecdoteToVoteFor = state.find(anecdote => anecdote.id === action.payload.id)
+    //   const votedAnecdote = {...anecdoteToVoteFor, votes: anecdoteToVoteFor.votes + 1}
 
+    //   const newState = [...state.filter(a => a.id !== action.payload.id), votedAnecdote]
+    //   return newState.sort((a1, a2) => a2.votes - a1.votes)
+    // },
+    appendAnecdote(state, action) {
+      state.push(action.payload)
     },
-    addVote(state, action) {
-      // console.log(current(state), action)
-      const anecdoteToVoteFor = state.find(anecdote => anecdote.id === action.payload)
-      const votedAnecdote = {...anecdoteToVoteFor, votes: anecdoteToVoteFor.votes + 1}
-
-      const newState = [...state.filter(a => a.id !== action.payload), votedAnecdote]
-      return newState.sort((a1, a2) => a2.votes - a1.votes)
+    setAnecdotes(state, action) {
+      return action.payload
     }
   }
 
 })
 
-export const { createAnecdote, addVote } = anecdoteSlice.actions;
+export const { addVote, appendAnecdote, setAnecdotes } = anecdoteSlice.actions;
+
+export const initializeAnecdotes = () => {
+  return async dispatch => {
+    const anecdotes = await anecdoteService.getAll()
+    dispatch(setAnecdotes(anecdotes))
+  }
+}
+
+export const createAnecdote = content => {
+  return async dispatch => {
+    const newAnecdote = await anecdoteService.createNew(content)
+    dispatch(appendAnecdote(newAnecdote))
+  }
+}
+
+export const voteRequest = anecdote => {
+  return async dispatch => {
+    const votedAnecdote = {...anecdote, votes: anecdote.votes + 1}
+    await anecdoteService.vote(votedAnecdote)
+    dispatch(initializeAnecdotes())
+  }
+}
 
 export default anecdoteSlice.reducer;
 
