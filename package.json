@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "react-bootstrap": "^2.10.4"
+  },
+  "devDependencies": {
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4"
+  }
+}
