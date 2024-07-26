@@ -7,12 +7,11 @@ import BlogForm from './components/BlogForm'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
+import { useNotificationDispatch, useNotificationValue } from './NotificationContext'
 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
-
 
   // login states
   const [username, setUsername] = useState('')
@@ -70,6 +69,9 @@ const App = () => {
     setUser(null)
   }
 
+  const dispatch = useNotificationDispatch()
+  const messageValue = useNotificationValue()
+
   const handleLogin = async (event) => {
     event.preventDefault()
 
@@ -88,9 +90,9 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setErrorMessage('Wrong credentials')
+      dispatch({ type: 'MESSAGE', payload: 'wrong credentials' })
       setTimeout(() => {
-        setErrorMessage(null)
+        dispatch({ type: 'CLEAR' })
       }, 5000)
     }
   }
@@ -110,7 +112,7 @@ const App = () => {
 
   const blogForm = () => (
     <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-      <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
+      <BlogForm createBlog={addBlog} />
     </Togglable>
   )
 
@@ -118,21 +120,22 @@ const App = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)){
       blogService.deleteBlog(blog.id)
         .then(() => {
-          setErrorMessage(
-            `${blog.title} was removed from server`
-          )
+          // setErrorMessage(
+          //   `${blog.title} was removed from server`
+          // )
+          // setTimeout(() => {
+          //   setErrorMessage(null)
+          // }, 5000)
+          dispatch({ type: 'MESSAGE', payload: `${blog.title} was removed from server` })
           setTimeout(() => {
-            setErrorMessage(null)
+            dispatch({ type: 'CLEAR' })
           }, 5000)
           setBlogs(blogs.filter(b => b.id !== blog.id))
         })
         .catch(error => {
-
-          setErrorMessage(
-            `Error deleting ${blog.title}: ${error}`
-          )
+          dispatch({ type: 'MESSAGE', payload: `Error deleting ${blog.title}: ${error}` })
           setTimeout(() => {
-            setErrorMessage(null)
+            dispatch({ type: 'CLEAR' })
           }, 5000)
 
         })
@@ -148,11 +151,9 @@ const App = () => {
         setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : returnedBlog))
       })
       .catch(() => {
-        setErrorMessage(
-          'Blog was already removed from server'
-        )
+        dispatch({ type: 'MESSAGE', payload: 'blog was already removed from server' })
         setTimeout(() => {
-          setErrorMessage(null)
+          dispatch({ type: 'CLEAR' })
         }, 5000)
         setBlogs(blogs.filter(b => b.id !== updatedBlog.id))
       })
@@ -161,11 +162,10 @@ const App = () => {
 
   return (
     <div>
-
       {user === null ?
         loginForm() :
         <div>
-          <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={errorMessage}/>
+          <LoginHeader user={user} handleLogout={handleLogout} blogForm={blogForm} errorMessage={messageValue}/>
           <Showblogs blogs={blogs} updateLikes={updateLikes} deleteBlog={deleteBlog} loggedInUser={user}/>
         </div>
       }

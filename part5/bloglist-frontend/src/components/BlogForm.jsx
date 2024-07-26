@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useNotificationDispatch } from '../NotificationContext'
 
-const BlogForm = ({ createBlog, setErrorMessage }) => {
+const BlogForm = ({ createBlog }) => {
   // blog states
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+
+  const dispatch = useNotificationDispatch()
 
   const addBlog = async (event) => {
     // now add title, author, url states to our blogs state
@@ -14,9 +17,9 @@ const BlogForm = ({ createBlog, setErrorMessage }) => {
       title, author, url
     })
 
-    setErrorMessage(`a new blog ${title} by ${author} added`)
+    dispatch({ type: 'MESSAGE', payload: `a new blog ${title} by ${author} added` })
     setTimeout(() => {
-      setErrorMessage(null)
+      dispatch({ type: 'CLEAR' })
     }, 5000)
 
     // reset states
